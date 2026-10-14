@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>구대고 관리자</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+  :root { --bg:#F4F5F8; --panel:#fff; --card:#F8F9FB; --line:#E9EBF0; --text:#191F28; --sub:#4E5968; --dim:#8B95A1;
+    --acc:#3B5BDB; --acc-d:#2F4AC0; --acc-soft:#EDF2FF; --mint-s:#E3F4EC; --mint-t:#1F8A5B; --peach-s:#FFF3DF; --peach-t:#B7791F;
+    --lav-s:#EFEDFB; --lav-t:#6553C2; --blue-s:#E7F1FB; --blue-t:#2F6DB5; --red:#E5484D; --red-s:#FFECEC; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 "Pretendard Variable", Pretendard, -apple-system, "Malgun Gothic", sans-serif; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  header b { font-size: 19px; font-weight: 800; } header small { display: block; color: var(--dim); font-size: 12px; margin-top: -2px; }
+  header .sp { flex: 1; }
+  .box { background: var(--panel); border-radius: 20px; padding: 22px 18px; box-shadow: 0 1px 2px rgba(25,31,40,.04), 0 4px 16px rgba(25,31,40,.05); }
+  h2 { margin: 0 0 6px; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+  .lead { color: var(--sub); margin: 0 0 18px; font-size: 14px; }
+  label.f { display: block; font-size: 13px; font-weight: 600; color: var(--sub); margin-bottom: 12px; }
+  input, textarea { width: 100%; font: inherit; font-size: 16px; padding: 13px 14px; border: 1.5px solid transparent; background: var(--card); border-radius: 12px; margin-top: 6px; color: var(--text); }
+  input:focus, textarea:focus { outline: none; border-color: var(--acc); background: #fff; }
+  .btn { font: inherit; font-size: 14px; font-weight: 700; border: 0; background: var(--card); color: var(--sub); border-radius: 12px; padding: 11px 14px; cursor: pointer; white-space: nowrap; }
+  .btn:active { transform: scale(.98); }
+  .btn.pri { background: var(--acc); color: #fff; } .btn.soft { background: var(--acc-soft); color: var(--acc); }
+  .btn.danger { background: var(--red-s); color: var(--red); } .btn.mint { background: var(--mint-s); color: var(--mint-t); }
+  .btn.sm { padding: 8px 11px; font-size: 13px; border-radius: 10px; }
+  .btn.full { width: 100%; padding: 14px; font-size: 15px; }
+  .err { color: var(--red); font-size: 13.5px; font-weight: 600; min-height: 20px; margin: 4px 0; }
+  .tabs { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 14px; padding: 0 16px; scrollbar-width: none; }
+  .tabs button { border: 0; background: #fff; color: var(--sub); font: inherit; font-weight: 700; font-size: 14px; padding: 9px 14px; border-radius: 99px; white-space: nowrap; cursor: pointer; }
+  .tabs button.on { background: var(--text); color: #fff; }
+  .tabs .n { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 99px; background: var(--red); color: #fff; font-size: 11.5px; margin-left: 4px; }
+  .u { background: #fff; border-radius: 18px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(25,31,40,.04); }
+  .u .top { display: flex; align-items: flex-start; gap: 10px; }
+  .u .who { flex: 1; min-width: 0; } .u .who b { font-size: 16px; } .u .who small { display: block; color: var(--dim); font-size: 13px; overflow: hidden; text-overflow: ellipsis; }
+  .chip { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 99px; white-space: nowrap; display: inline-block; }
+  .chip.ok { background: var(--mint-s); color: var(--mint-t); } .chip.bad { background: var(--red-s); color: var(--red); }
+  .chip.warn { background: var(--peach-s); color: var(--peach-t); } .chip.lav { background: var(--lav-s); color: var(--lav-t); }
+  .chip.blue { background: var(--blue-s); color: var(--blue-t); } .chip.none { background: var(--card); color: var(--dim); }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+  .meta { color: var(--sub); font-size: 13px; margin-top: 8px; }
+  .acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .memo { font-size: 13px; color: var(--sub); background: var(--card); border-radius: 10px; padding: 8px 10px; margin-top: 8px; white-space: pre-wrap; }
+  .empty { text-align: center; color: var(--dim); padding: 40px 0; }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: #191F28; color: #fff; padding: 12px 18px; border-radius: 14px; font-size: 14px; font-weight: 600; opacity: 0; transition: .2s; pointer-events: none; z-index: 9; max-width: 90vw; }
+  #toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg width="34" height="34" viewBox="0 0 38 38"><rect width="38" height="38" rx="11" fill="#3B5BDB"/><path d="M11 22.5 17.5 16l4 4L27 13.5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.5 13.5H27V18" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div><b>구대고 관리자</b><small>회원 허가 · 사용기한</small></div>
+    <span class="sp"></span>
+    <button class="btn sm hidden" id="refreshBtn" onclick="load()">새로고침</button>
+    <button class="btn sm hidden" id="outBtn" onclick="logout()">로그아웃</button>
+  </header>
+
+  <div class="box" id="loginBox">
+    <h2>관리자 로그인</h2><p class="lead">관리자로 지정된 계정만 들어올 수 있어요</p>
+    <label class="f">이메일<input id="email" type="email" autocomplete="username"></label>
+    <label class="f">비밀번호<input id="pw" type="password" autocomplete="current-password"></label>
+    <div class="err" id="err"></div>
+    <button class="btn pri full" id="loginBtn" onclick="login()">로그인</button>
+  </div>
+
+  <div id="main" class="hidden">
+    <div class="tabs" id="tabs"></div>
+    <div id="list"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://ggjoqcttupmhexxguejj.supabase.co";
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdnam9xY3R0dXBtaGV4eGd1ZWpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5NTE0NjMsImV4cCI6MjEwNzUyNzQ2M30.puhU6fCubSk988cN7uv_yP0x6VY7VQhTK6w8nUCgx8E";
+const sb = supabase.createClient(SUPABASE_URL, ANON_KEY);
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ROLE = {owner: '대표', staff: '알바'};
+let users = [], tab = 'pending';
+
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2400); }
+const fmt = s => { if (!s) return '-'; const d = new Date(s); return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`; };
+const daysLeft = s => s ? Math.ceil((new Date(s) - Date.now()) / 86400000) : null;
+function kind(u) {
+  if (u.status === 'suspended') return 'suspended';
+  if (u.status === 'pending' || !u.role) return 'pending';
+  const d = daysLeft(u.expires_at);
+  if (d === null || d <= 0) return 'expired';
+  return d <= 5 ? 'soon' : 'active';
+}
+
+async function login() {
+  $('#err').textContent = ''; $('#loginBtn').disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email: $('#email').value.trim(), password: $('#pw').value });
+  $('#loginBtn').disabled = false;
+  if (error) { $('#err').textContent = /Invalid login/.test(error.message) ? '이메일 또는 비밀번호가 맞지 않아요.' : error.message; return; }
+  start();
+}
+async function logout() { await sb.auth.signOut(); location.reload(); }
+async function start() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) return;
+  const { data: me, error } = await sb.rpc('my_license');
+  if (error || !me || !me.is_admin) {
+    $('#err').textContent = '관리자 계정이 아니에요.'; await sb.auth.signOut(); return;
+  }
+  $('#loginBox').classList.add('hidden'); $('#main').classList.remove('hidden');
+  $('#refreshBtn').classList.remove('hidden'); $('#outBtn').classList.remove('hidden');
+  load();
+}
+async function load() {
+  const { data, error } = await sb.rpc('admin_list');
+  if (error) return toast('불러오기 실패: ' + error.message);
+  users = data || [];
+  render();
+}
+function render() {
+  const groups = {pending: '허가 대기', soon: '곧 만료', active: '사용 중', expired: '만료', suspended: '정지', all: '전체'};
+  const cnt = k => k === 'all' ? users.length : users.filter(u => kind(u) === k).length;
+  $('#tabs').innerHTML = Object.entries(groups).map(([k, v]) =>
+    `<button class="${tab === k ? 'on' : ''}" onclick="tab='${k}';render()">${v}${cnt(k) && (k === 'pending' || k === 'soon') ? `<span class="n">${cnt(k)}</span>` : ` ${cnt(k)}`}</button>`).join('');
+  const list = users.filter(u => tab === 'all' || kind(u) === tab);
+  $('#list').innerHTML = list.map(card).join('') || '<div class="empty">해당하는 회원이 없어요</div>';
+}
+function card(u) {
+  const k = kind(u), d = daysLeft(u.expires_at);
+  const st = {pending: ['허가 대기', 'warn'], soon: [`D-${d}`, 'warn'], active: [`D-${d}`, 'ok'], expired: ['만료', 'bad'], suspended: ['정지', 'bad']}[k];
+  const role = u.role ? `<span class="chip ${u.role === 'owner' ? 'lav' : 'blue'}">${ROLE[u.role]}</span>` : `<span class="chip none">신청: ${ROLE[u.role_request]}</span>`;
+  const acts = [];
+  if (k === 'pending') {
+    acts.push(`<button class="btn pri sm" onclick="extend('${u.id}', 31, '${u.role_request}')">허가 + 31일 (${ROLE[u.role_request]})</button>`);
+    acts.push(`<button class="btn soft sm" onclick="extend('${u.id}', 31, '${u.role_request === 'owner' ? 'staff' : 'owner'}')">${ROLE[u.role_request === 'owner' ? 'staff' : 'owner']}로 허가</button>`);
+  } else if (k !== 'suspended') {
+    acts.push(`<button class="btn pri sm" onclick="extend('${u.id}', 31)">+31일 연장</button>`);
+    acts.push(`<button class="btn sm" onclick="extendAsk('${u.id}')">일수 지정</button>`);
+  }
+  if (u.role) acts.push(`<button class="btn sm" onclick="setRole('${u.id}', '${u.role === 'owner' ? 'staff' : 'owner'}')">${ROLE[u.role === 'owner' ? 'staff' : 'owner']}로 변경</button>`);
+  acts.push(k === 'suspended' ? `<button class="btn mint sm" onclick="setStatus('${u.id}', 'active')">정지 해제</button>`
+                              : `<button class="btn danger sm" onclick="setStatus('${u.id}', 'suspended')">정지</button>`);
+  if (u.role === 'owner' && u.pin_hash) acts.push(`<button class="btn sm" onclick="resetPin('${u.id}')">2차 비번 초기화</button>`);
+  acts.push(`<button class="btn sm" onclick="memo('${u.id}')">메모</button>`);
+  return `<div class="u"><div class="top"><div class="who"><b>${esc(u.name || '(이름 없음)')}</b><small>${esc(u.email)}</small></div><span class="chip ${st[1]}">${st[0]}</span></div>
+    <div class="chips">${role}${u.role === 'owner' ? `<span class="chip none">2차 비번 ${u.pin_hash ? '설정됨' : '미설정'}</span>` : ''}</div>
+    <div class="meta">기한 ${fmt(u.expires_at)} · 가입 ${fmt(u.created_at)} · 최근 접속 ${u.last_seen_at ? fmt(u.last_seen_at) : '-'}</div>
+    ${u.memo ? `<div class="memo">${esc(u.memo)}</div>` : ''}
+    <div class="acts">${acts.join('')}</div></div>`;
+}
+const who = id => { const u = users.find(x => x.id === id); return u ? `${u.name || u.email}` : ''; };
+async function call(fn, args, msg) {
+  const { error } = await sb.rpc(fn, args);
+  if (error) return toast('실패: ' + error.message);
+  toast(msg); load();
+}
+function extend(id, days, role) {
+  if (!confirm(`${who(id)} 님을 ${role ? ROLE[role] + '(으)로 허가하고 ' : ''}${days}일 연장할까요?\n(남은 기간이 있으면 거기에 더해져요)`)) return;
+  call('admin_extend', {uid: id, days, set_role: role || null}, `${days}일 연장했어요`);
+}
+function extendAsk(id) {
+  const v = prompt(`${who(id)} 님 기한을 며칠 늘릴까요? (줄이려면 음수)`, '31'); if (v === null) return;
+  const n = parseInt(v, 10); if (!n) return toast('숫자를 입력하세요');
+  call('admin_extend', {uid: id, days: n, set_role: null}, `${n}일 반영했어요`);
+}
+function setStatus(id, s) {
+  if (!confirm(`${who(id)} 님을 ${s === 'suspended' ? '정지' : '정지 해제'}할까요?`)) return;
+  call('admin_set_status', {uid: id, new_status: s}, s === 'suspended' ? '정지했어요' : '정지를 풀었어요');
+}
+function setRole(id, r) {
+  if (!confirm(`${who(id)} 님을 ${ROLE[r]} 계정으로 바꿀까요?`)) return;
+  call('admin_set_role', {uid: id, new_role: r}, `${ROLE[r]}로 바꿨어요`);
+}
+function resetPin(id) {
+  if (!confirm(`${who(id)} 님의 2차 비밀번호를 초기화할까요? (다음 실행 때 새로 정해요)`)) return;
+  call('admin_reset_pin', {uid: id}, '2차 비밀번호를 초기화했어요');
+}
+function memo(id) {
+  const u = users.find(x => x.id === id);
+  const v = prompt(`${who(id)} 메모 (입금일 등)`, u.memo || ''); if (v === null) return;
+  call('admin_set_memo', {uid: id, new_memo: v}, '메모를 저장했어요');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#loginBox').classList.contains('hidden')) login(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('#main').classList.contains('hidden')) load(); });
+start();
+</script>
+</body>
+</html>
